@@ -1,0 +1,20 @@
+{
+  "name": "fmserver",
+  "version": "1.0.0",
+  "description": "FileMaker database abstraction",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "filemaker",
+    "database",
+    "cache"
+  ],
+  "author": "Karl Vossen",
+  "license": "ISC",
+  "dependencies": {
+    "ramda": "^0.21.0",
+    "uuid": "^2.0.2"
+  }
+}

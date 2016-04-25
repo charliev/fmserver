@@ -1,0 +1,20 @@
+{
+  "name": "fmrequest",
+  "version": "1.0.0",
+  "description": "a node client to FileMaker Web Publishing Engine",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "filemaker",
+    "client"
+  ],
+  "author": "Karl Vossen",
+  "license": "ISC",
+  "dependencies": {
+    "ramda": "^0.19.1",
+    "request": "^2.69.0",
+    "sax": "^1.2.1"
+  }
+}
