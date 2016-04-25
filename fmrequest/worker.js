@@ -31,30 +31,6 @@ process.on('message', function(query) {
   }
 });
 
-// function param(args) {
-//   var db = {
-//     uri: util.format('http://%s:%s/fmi/xml/fmresultset.xml', args.fmhost || '127.0.0.1', args.fmport || '80'),
-//     method: 'POST'
-//   };
-//   if (args.username && args.password && args.username.toString && args.password.toString) {
-//     db.headers = {
-//       'Authorization': 'Basic ' + new Buffer(util.format('%s:%s', args.username.toString(), args.password.toString())).toString('base64')
-//     }
-//   }
-//   if (typeof args.query === 'string') {
-//     db.body = args.query;
-//     return(db);
-//   }
-//   if (typeof args.query === 'object') {
-//     let p = (val, key) => encodeURIComponent(key.toString()) + '=' + encodeURIComponent(val.toString());
-//     db.body = R.join('&',R.values(R.mapObjIndexed(p, args.query)));
-//     return(db);
-//   }
-//
-//   console.error(args);
-//   throw(new Error('Invalid query'));
-// }
-
 function fm(query, cb) {
 
   var obj = false;

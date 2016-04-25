@@ -23,16 +23,6 @@ module.exports = function(db, layout) {
     '-db': db.database,
     '-lay': layout
   }
-  //
-  // if (typeof args.query === 'string') {
-  //   db.body = args.query;
-  //   return(db);
-  // }
-  // if (typeof args.query === 'object') {
-  //   let p = (val, key) => encodeURIComponent(key.toString()) + '=' + encodeURIComponent(val.toString());
-  //   db.body = R.join('&',R.values(R.mapObjIndexed(p, args.query)));
-  //   return(db);
-  // }
 
   return(function(args, cb) {
     let req = child_process.fork(worker);
@@ -40,9 +30,9 @@ module.exports = function(db, layout) {
       err: null,
       res: null
     };
-    req.on('close', function() {console.log('closed');});
-    req.on('disconnect', function() {console.log('disconnected');});
-    req.on('error', function() {console.log('error', arguments);});
+    req.on('close', function() {});
+    req.on('disconnect', function() {});
+    req.on('error', function() {console.log(new Date(), 'error', arguments);});
     req.on('exit', function(code, signal) {
       if (code === 0) {
         return(cb(re.err, re.res));
