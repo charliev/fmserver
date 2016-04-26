@@ -33,8 +33,10 @@ process.on('message', function(query) {
 
 function fm(query, cb) {
 
+  var tpl = {};
+
   var obj = false;
-  var thisField = false;
+  var currentField = false;
   var dataBuffer = '';
   var data =[];
 
@@ -50,51 +52,70 @@ function fm(query, cb) {
     return(cb(new Error('parser error ' + e.message), null));
   };
   parser.onopentag = function (node) {
-    if (node.name === 'relatedset') {
-      inSet = true;
-      setName = node.attributes.table;//.replace(/\s/g, '_').toLowerCase();
-  	} else if (node.name === 'error') {
+
+    if (node.name === 'field' && tpl[node.attributes.name]) {
+      currentField = {
+        fieldName: node.attributes.name,
+        fieldType: tpl[node.attributes.name]
+      };
+    }
+
+    if (node.name === 'data') {
+      dataBuffer = '';
+    }
+
+    if (node.name === 'record') {
+      obj = {
+        'record-id': parseInt(node.attributes['record-id'], 10),
+        'mod-id': parseInt(node.attributes['mod-id'], 10)
+      }
+    }
+
+    if (node.name === 'field-definition' && !(/::/).test(node.attributes.name)) {
+      tpl[node.attributes.name] = node.attributes.result;
+    }
+
+    if (node.name === 'metadata') {
+      tpl = {};
+    }
+
+    if (node.name === 'error') {
   		// console.error('### FileMaker error', node.attributes.code);
       fmError = parseInt(node.attributes.code, 10);
-    } else if (node.name === 'record') {
-      if (!inSet) {
-        obj = {};
-      } else {
-        sub = {};
-      }
-    } else if (node.name === 'field') {
-      thisField = node.attributes.name;//.replace(/\s/g, '_').toLowerCase();
-      if (inSet) {
-        thisField = thisField.replace(setName + '::', '');
-      }
-    } else if (node.name === 'data') {
-      dataBuffer = '';
     }
   };
   parser.ontext = function(text) {
     dataBuffer += text;
   };
   parser.onclosetag = function (tagname) {
-    if (tagname === 'relatedset') {
-      inSet = false;
-      obj[setName] = set;
-      set = [];
-    } else if (tagname === 'record') {
-      if (inSet) {
-        set.push(sub);
-      } else {
-        data.push(obj);
+
+    if (tagname === 'record' && obj) {
+      data.push(obj);
+      obj = false;
+    }
+
+    if (tagname === 'field') {
+      currentField = false;
+    }
+
+    if (tagname === 'data' && currentField) {
+      // console.log('bleep', obj, currentField);
+      if (currentField.fieldType === 'text') {
+        obj[currentField.fieldName] = dataBuffer;
       }
-    } else if (tagname === 'field') {
-      thisField = false;
-    } else if (tagname === 'data' && thisField) {
-      if (inSet) {
-        sub[thisField] = dataBuffer;
-      } else {
-        obj[thisField] = dataBuffer;
+      if (currentField.fieldType === 'number') {
+        obj[currentField.fieldName] = parseFloat(dataBuffer);
+      }
+      if (currentField.fieldType === 'timestamp') {
+        obj[currentField.fieldName] = new Date(dataBuffer);
+      }
+      if (currentField.fieldType === 'date') {
+        obj[currentField.fieldName] = new Date(dataBuffer);
       }
       dataBuffer = '';
-    }  else if (tagname === 'resultset') {
+    }
+
+    if (tagname === 'resultset') {
       // we're actually done parsing, but will use the onend handler to finish things off
     }
   };
@@ -102,6 +123,7 @@ function fm(query, cb) {
     if (fmError) {
       return(cb(new Error('filemaker error code ' + fmError), null));
     }
+    // console.log(tpl, data);
     return(cb(null, data));
   };
 
